@@ -1,43 +1,30 @@
 
-let person = {
-    name: 'Chandra',
-    age: 40
+const isDirectRun = process.argv[1]?.endsWith("arrays.ts");
+
+if (isDirectRun) {
+    const person = {
+        name: 'Chandra',
+        age: 40
+    };
+    const arr = ["Apple", "Banana", "Grapes", "Pineapple", "Cherry", person];
+    console.log(arr[5]);
+
+    // Add or Remove elements
+    arr.push('orange');
+    arr.pop(); // Removes last element
+    arr.shift(); // Removes first element
+    arr.unshift("Orange"); // Add element to the first index
+    console.log(arr);
+
+    // Looping an array
+    for (let i = 0; i < arr.length; i++) {
+        console.log(arr[i]);
+    }
+
+    const dupNumbers = [1, 2, 3, 4, 5, 6, 5, 2, 6, 7];
+    const uniqNumbers = Array.from(new Set(dupNumbers));
+    console.log(uniqNumbers);
 }
-let arr = ["Apple", "Banana", "Grapes", "Pineapple", "Cherry", person];
-console.log(arr[5])
-
-// Add or Remove elements
-arr.push('orange');
-
-arr.pop(); // Removes last element
-arr.shift(); // Removes first element
-arr.unshift("Orange"); // Add element to the first index
-console.log(arr)
-
-//NOTE: Push and POP are more performant thatn unshift and shift
-
-// Looping an array
-
-for (let i = 0; i < arr.length; i++) {
-    console.log(arr[i])
-}
-
-let i = 0;
-while (i < arr.length) {
-    // console.log(arr[i]);
-    i++;
-}
-
-const numbers = [1, 2, 3, 4, 5];
-const nuwNumbers = numbers.map((item, index, array) => {
-    // console.log(item, index, array);
-})
-
-const filteredNumbers = numbers.filter((item) => item > 3);
-
-const dupNumbers = [1, 2, 3, 4, 5, 6, 5, 2, 6, 7];
-const uniqNumbers = Array.from(new Set(dupNumbers));
-console.log(uniqNumbers);
 
 
 // ============================================================================
@@ -68,7 +55,7 @@ console.log(uniqNumbers);
  *
  * Complexity: Time O(N) | Space O(1) in-place
  */
-const removeDuplicates = (nums: number[]) => {
+export const removeDuplicates = (nums: number[]) => {
     if (nums.length === 0) return { duplicateCount: 0, uniqueArray: [] };
 
     const originalLength = nums.length;
@@ -93,10 +80,10 @@ const removeDuplicates = (nums: number[]) => {
     };
 };
 
-console.log(removeDuplicates([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 7, 7]));
+// console.log(removeDuplicates([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 7, 7]));
 
 
-const removDupes = (nums: number[]): number => {
+export const removDupes = (nums: number[]): number => {
     if (nums.length === 0) return 0;
 
     let i = 0;
@@ -107,8 +94,8 @@ const removDupes = (nums: number[]): number => {
         }
     }
     return (i + 1);
-}
-console.log('Remove Dupes:', removDupes([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 7, 7]))
+};
+// console.log('Remove Dupes:', removDupes([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 7, 7]))
 
 // const nos = [5, 7, 3, 9, 1];
 // const orderedNos = nos.sort((a, b) => (a - b));
@@ -144,25 +131,43 @@ console.log('Remove Dupes:', removDupes([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 
  *
  * Complexity: Time O(N) | Space O(N)
  */
-const twoSum = (nums: number[], target: number) => {
-
+export const twoSum = (nums: number[], target: number): number[] => {
     const seen = new Map<number, number>();
 
     for (let i = 0; i < nums.length; i++) {
         const complement = target - nums[i]!;
 
         if (seen.has(complement)) {
-            return [seen.get(complement)!, i]
+            return [seen.get(complement)!, i];
         }
 
-        seen.set(nums[i]!, i)
-
+        seen.set(nums[i]!, i);
     }
 
     return [];
-}
+};
 
-console.log(twoSum([2, 11, 7, 15], 9));
+/**
+ * Two Sum II - Input Array Is Sorted (LeetCode 167)
+ * In-place two pointers achieve O(1) space!
+ */
+export const twoSumSorted = (numbers: number[], target: number): number[] => {
+    let left = 0;
+    let right = numbers.length - 1;
+
+    while (left < right) {
+        const sum = numbers[left]! + numbers[right]!;
+        if (sum === target) {
+            return [left, right];
+        } else if (sum < target) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+
+    return [];
+};
 
 
 // Frequency
@@ -207,14 +212,13 @@ const frequency = (chars: string[]) => {
  *
  * Complexity: Time O(N) | Space O(1)
  */
-const isPalindrome = (value: string | number): boolean => {
-    const s = String(value)
+export const isPalindrome = (value: string | number): boolean => {
+    const s = String(value);
 
     let left = 0;
     let right = s.length - 1;
 
     while (left < right) {
-
         if (s[left] !== s[right]) {
             return false;
         }
@@ -223,12 +227,12 @@ const isPalindrome = (value: string | number): boolean => {
     }
 
     return true;
-}
+};
 
-console.log(isPalindrome('madam'))
-console.log(isPalindrome('madamm'))
-console.log(isPalindrome(121))
-console.log(isPalindrome(125))
+// console.log(isPalindrome('madam'))
+// console.log(isPalindrome('madamm'))
+// console.log(isPalindrome(121))
+// console.log(isPalindrome(125))
 
 
 // ============================================================================
@@ -261,8 +265,7 @@ console.log(isPalindrome(125))
  *
  * Complexity: Time O(N) | Space O(1)
  */
-const maxSum = (nums: number[], k: number): number => {
-
+export const maxSum = (nums: number[], k: number): number => {
     let windowSum = 0;
     let maxSum = -Infinity;
 
@@ -281,7 +284,7 @@ const maxSum = (nums: number[], k: number): number => {
         }
     }
     return maxSum;
-}
+};
 
 
 // ============================================================================
@@ -307,7 +310,7 @@ const maxSum = (nums: number[], k: number): number => {
  * 4. TRADE-OFFS:
  *    - Brute Force substrings: O(N^3) or O(N^2).
  *    - Dynamic Sliding Window: O(2N) = O(N) time! Each character visited by left and right at most once.
- *    - Map of char -> lastIndex can jump `left = map.get(char) + 1` directly (slight optimization).
+ *    - Direct Jump (Map of char -> lastIndex): O(N) single-pass without while loop!
  *
  * 5. PITFALLS & EDGE CASES:
  *    - Forgetting the `while` loop when shrinking `left` (might need to shrink multiple chars).
@@ -315,7 +318,7 @@ const maxSum = (nums: number[], k: number): number => {
  *
  * Complexity: Time O(N) | Space O(min(N, alphabet))
  */
-function lengthOfLongestSubstring(s: string): number {
+export function lengthOfLongestSubstring(s: string): number {
     const seen = new Set<string>();
 
     let left = 0;
@@ -336,4 +339,56 @@ function lengthOfLongestSubstring(s: string): number {
     }
 
     return maxLength;
+}
+
+/**
+ * Ultra-Optimized: O(N) Single-Pass Direct Jump (LeetCode 3)
+ * Eliminates the inner `while` loop entirely!
+ * Stores last seen index of each char. When duplicate appears,
+ * `left` jumps directly: `left = Math.max(left, lastSeenIndex + 1)`.
+ */
+export function lengthOfLongestSubstringJump(s: string): number {
+    const lastSeen = new Map<string, number>();
+    let left = 0;
+    let maxLength = 0;
+
+    for (let right = 0; right < s.length; right++) {
+        const char = s[right]!;
+
+        if (lastSeen.has(char)) {
+            left = Math.max(left, lastSeen.get(char)! + 1);
+        }
+
+        lastSeen.set(char, right);
+        maxLength = Math.max(maxLength, right - left + 1);
+    }
+
+    return maxLength;
+}
+
+/**
+ * Returns the actual substring, not just the length!
+ */
+export function getLongestSubstring(s: string): string {
+    const lastSeen = new Map<string, number>();
+    let left = 0;
+    let maxLength = 0;
+    let bestStart = 0;
+
+    for (let right = 0; right < s.length; right++) {
+        const char = s[right]!;
+
+        if (lastSeen.has(char)) {
+            left = Math.max(left, lastSeen.get(char)! + 1);
+        }
+
+        lastSeen.set(char, right);
+
+        if (right - left + 1 > maxLength) {
+            maxLength = right - left + 1;
+            bestStart = left;
+        }
+    }
+
+    return s.slice(bestStart, bestStart + maxLength);
 }
