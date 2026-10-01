@@ -1,18 +1,41 @@
 /**
- * Group Anagrams (LeetCode 49)
+ * ============================================================================
+ * GROUP ANAGRAMS (LeetCode 49)
+ * 
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Group words that are anagrams / anagram permutations"
+ *    - Metaphor: The DNA Fingerprint 🧬 (Scrambled letters share the same DNA signature).
  *
- * Anagram: Word made by rearranging letters of another word (same characters, same frequencies).
- * Example: "eat", "tea", "ate" -> all sort to "aet".
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: For each word, generate a canonical signature key.
+ *    - Step 2: Store word in a Hash Map under that canonical key: `map.get(key).push(word)`.
+ *    - Step 3: Return all bucket values: `Array.from(map.values())`.
  *
- * Problem:
- * Given an array of strings strs, group the anagrams together.
- * Return answer in any order.
+ * 3. THE APPROACH:
+ *    - Approach 1: Sorted String Key ("eat" -> ['a','e','t'] -> "aet").
+ *    - Approach 2: 26-Character Frequency Key ("eat" -> "1#0#...#1#0").
+ *
+ * 4. TRADE-OFFS:
+ *    - Sorted String Key:
+ *      * Time: O(N * K log K) where N = words count, K = max string length.
+ *      * Space: O(N * K).
+ *      * Pros: Cleanest, simplest, fastest to write under interview pressure.
+ *    - 26-Character Frequency Key:
+ *      * Time: O(N * K) linear time.
+ *      * Space: O(N * K).
+ *      * Pros: Avoids O(K log K) sorting; strictly superior when words are long (K > 100).
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Missing delimiter in count key: `[1, 11]` vs `[11, 1]` without `#` causes hash collision!
+ *    - Empty strings `[""]` -> must return `[[""]]`.
+ *    - Single characters `["a"]` -> must return `[["a"]]`.
+ * ============================================================================
  */
 
 // ============================================================================
 // Approach 1: Categorize by Sorted String (Most Common / Cleanest)
-// Time Complexity : O(N * K log K) where N = number of strings, K = max length of a string
-// Space Complexity: O(N * K) to store grouped strings in hash map
+// Time Complexity : O(N * K log K)
+// Space Complexity: O(N * K)
 // ============================================================================
 export function groupAnagramsSorted(strs: string[]): string[][] {
     const map = new Map<string, string[]>();
@@ -82,4 +105,3 @@ if (isDirectRun) {
     console.log("\nInput:", words3);
     console.log("Result:", groupAnagramsSorted(words3));
 }
-

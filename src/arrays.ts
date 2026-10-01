@@ -40,8 +40,34 @@ const uniqNumbers = Array.from(new Set(dupNumbers));
 console.log(uniqNumbers);
 
 
-// Remove duplicates [0, 0, 1, 1, 1, 2, 2, 3, 3, 4]
-
+// ============================================================================
+// 1. REMOVE DUPLICATES FROM SORTED ARRAY (LeetCode 26)
+// ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Sorted array", "Remove duplicates in-place", "O(1) extra memory"
+ *    - Metaphor: The Slow & Fast Writer ✍️ (Slow pointer `i` holds last unique rock.
+ *      Fast pointer `j` scouts ahead. When scout finds a new rock, slow writer advances and copies it).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: If empty, return 0. Set `i = 0`.
+ *    - Step 2: Loop `j` from 1 to N-1:
+ *              * If `nums[i] !== nums[j]` -> advance `i++`, copy `nums[i] = nums[j]`.
+ *    - Step 3: Return `i + 1` (the new length of unique elements).
+ *
+ * 3. THE APPROACH:
+ *    - In-place two-pointer partition (Reader/Writer pattern).
+ *
+ * 4. TRADE-OFFS:
+ *    - Set (`Array.from(new Set(nums))`): O(N) extra memory, not allowed by LeetCode 26!
+ *    - In-Place Two Pointers: O(N) time, strict O(1) space!
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Input array must be SORTED. If unsorted, sort first or use Hash Set.
+ *    - Returning `i` instead of `i + 1` (length is 1-indexed, `i` is 0-indexed).
+ *
+ * Complexity: Time O(N) | Space O(1) in-place
+ */
 const removeDuplicates = (nums: number[]) => {
     if (nums.length === 0) return { duplicateCount: 0, uniqueArray: [] };
 
@@ -89,14 +115,35 @@ console.log('Remove Dupes:', removDupes([0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 5, 7, 
 // console.log(orderedNos)
 
 
-// Two Sum: nums = [2, 7, 11, 15], target = 9, answer = [0, 1]
-// 1. Create Map
-// 2. Loop
-// 3. Calculate complement
-// 4. Check Map
-// 5. If found → answer
-// 6. Otherwise → store current
-
+// ============================================================================
+// 2. TWO SUM (LeetCode 1)
+// ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Two numbers add up to target" / "Find pair indices"
+ *    - Metaphor: The Lost Half / Missing Lock Key 🔑 (For each number `x`, you need `target - x`.
+ *      Look in your pocket map: "Did I pick up the missing key earlier?").
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Create `seen = new Map<number, number>()` (stores value -> index).
+ *    - Step 2: Loop numbers: compute `complement = target - nums[i]`.
+ *    - Step 3: If `seen.has(complement)`, return `[seen.get(complement)!, i]`.
+ *    - Step 4: Else save current: `seen.set(nums[i], i)`.
+ *
+ * 3. THE APPROACH:
+ *    - Hash Map trading O(N) space for O(N) linear time.
+ *
+ * 4. TRADE-OFFS:
+ *    - Brute Force: Two nested loops O(N^2) time, O(1) space.
+ *    - Hash Map: O(N) time, O(N) space (optimal when returning indices).
+ *    - Two Pointers (left + right): O(N log N) sort time, O(1) space. Destroys original indices!
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Adding element to map BEFORE checking complement: if `target = 6` and `nums[i] = 3`,
+ *      an element might pair with itself! (Must check complement first, then insert).
+ *
+ * Complexity: Time O(N) | Space O(N)
+ */
 const twoSum = (nums: number[], target: number) => {
 
     const seen = new Map<number, number>();
@@ -132,8 +179,34 @@ const frequency = (chars: string[]) => {
 
 // console.log(frequency(["a", "b", "a", "c", "a", "c"]))
 
-// Palindrome, string = 'madam', number=121
-
+// ============================================================================
+// 3. PALINDROME CHECK (LeetCode 125)
+// ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Reads same forwards and backwards" / "Mirrored string"
+ *    - Metaphor: Converging Clapping Hands 👏 (One hand at start, one at end. Walk toward middle).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Initialize `left = 0, right = str.length - 1`.
+ *    - Step 2: Loop `while (left < right)`:
+ *              * If `s[left] !== s[right]`, return `false`.
+ *              * `left++`, `right--`.
+ *    - Step 3: Return `true`.
+ *
+ * 3. THE APPROACH:
+ *    - Two pointers converging from opposite ends toward center.
+ *
+ * 4. TRADE-OFFS:
+ *    - `s === s.split('').reverse().join('')`: Allocates 2 new strings and array (O(N) memory).
+ *    - Two Pointers: Strict O(1) auxiliary space! Stops at first mismatch.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Number input: convert to string first or use math modulo (`% 10` and `/ 10`).
+ *    - Alpha-numeric filtering: LeetCode 125 requires skipping non-alphanumeric chars.
+ *
+ * Complexity: Time O(N) | Space O(1)
+ */
 const isPalindrome = (value: string | number): boolean => {
     const s = String(value)
 
@@ -158,79 +231,36 @@ console.log(isPalindrome(121))
 console.log(isPalindrome(125))
 
 
-// Fixed-Size Sliding Window, Problem: Find maximum sum of k consecutive elements.
-// nums = [2, 1, 5, 1, 3, 2], k = 3, Answer:maximum sum = 9, numbers = [5, 1, 3], Complexity: Time  → O(n), Space → O(1)
-
-// The possible windows are:
-// [2, 1, 5] → 8  ==> Start with the first k = 3 numbers, Sum:2 + 1 + 5 = 8, Now slide the window one position to the right.
-// [1, 5, 1] → 7
-// [5, 1, 3] → 9  ← maximum
-// [1, 3, 2] → 6
-
-// Steps:
-// Step1: let windowSum = 0; --> Current window's sum.
-// Step2: let maxSum = -Infinity; --> We need to remember the largest sum we've seen.Using -Infinity also works correctly when all numbers are negative.
-// Step3: for (let right = 0; right < nums.length; right++) --> right represents the new number entering the window.
-// Step4: windowSum += nums[right]; --> Add the new number.
-//   For example: right = 0 → add 2  right = 1 → add 1  right = 2 → add 5, Now:windowSum = 8
-// Step5: if (right >= k - 1) --> Is the window full? For: k = 3 we need:right >= 2, When right = 2, we've collected:index:  0  1  2, value:  2  1  5
-// Step6: maxSum = Math.max(maxSum, windowSum); Compare current window with previous maximum.
-//   current = 8, maximum = 8 Next:current = 7, maximum = 8 Next:current = 9, maximum = 9
-// Step7: windowSum -= nums[right - k + 1]; For:right = 2, k = 3 we get:2 - 3 + 1 = 0 So:windowSum -= nums[0];Remove: 2 because it is leaving the window.
-
-// *** If you want to return numbers, indices as well, which can be useful in interviews:***
-
-// function maxSum(nums: number[], k: number): {
-//     maxSum: number;
-//     numbers: number[];
-//     startIndex: number;
-//     endIndex: number;
-// } {
-//     let windowSum = 0;
-//     let maxSum = -Infinity;
-
-//     let bestStart = 0;
-//     let bestEnd = 0;
-
-//     for (let right = 0; right < nums.length; right++) {
-//         windowSum += nums[right];
-
-//         if (right >= k - 1) {
-//             const left = right - k + 1;
-
-//             if (windowSum > maxSum) {
-//                 maxSum = windowSum;
-//                 bestStart = left;
-//                 bestEnd = right;
-//             }
-
-//             windowSum -= nums[left];
-//         }
-//     }
-
-//     return {
-//         maxSum,
-//         numbers: nums.slice(bestStart, bestEnd + 1),
-//         startIndex: bestStart,
-//         endIndex: bestEnd
-//     };
-// }
-
-
-/*
-   * Sliding Window — Fixed Size
-   *
-   * 1. Maintain a window of exactly K consecutive elements.
-   * 2. Expand the window by adding nums[right].
-   * 3. Once the window reaches size K, process its sum.
-   * 4. Update maxSum if the current window has a larger sum.
-   * 5. Remove the leftmost element before sliding the window.
-   * 6. Continue until right reaches the end of the array.
-   *
-   * Time  : O(n) — each element is added and removed once.
-   * Space : O(1) — only variables are used.
-   */
-
+// ============================================================================
+// 4. FIXED-SIZE SLIDING WINDOW (Maximum Sum of Size K)
+// ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Subarray of exact size K" / "Consecutive K elements max/min sum"
+ *    - Metaphor: The Caterpillar 🐛 (One head stretches forward to eat new leaf;
+ *      tail pulls forward to discard old leaf. Window size stays strictly K).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: `windowSum = 0, maxSum = -Infinity`.
+ *    - Step 2: Loop `right` from 0 to N-1:
+ *              * Add incoming: `windowSum += nums[right]`.
+ *              * Once window reaches size K (`right >= k - 1`):
+ *                1) Update `maxSum = Math.max(maxSum, windowSum)`.
+ *                2) Subtract outgoing: `windowSum -= nums[right - k + 1]`.
+ *
+ * 3. THE APPROACH:
+ *    - Reusing previous sum by subtracting departing element and adding entering element.
+ *
+ * 4. TRADE-OFFS:
+ *    - Brute Force sum of every K slice: O(N * K) time.
+ *    - Sliding Window: O(N) linear time, O(1) space!
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Initializing `maxSum = 0`: Fails when all array numbers are negative! Use `-Infinity`.
+ *    - Off-by-one window check: `right >= k - 1`.
+ *
+ * Complexity: Time O(N) | Space O(1)
+ */
 const maxSum = (nums: number[], k: number): number => {
 
     let windowSum = 0;
@@ -254,10 +284,37 @@ const maxSum = (nums: number[], k: number): number => {
 }
 
 
-/// The More Important Version — Dynamic Window
-// Longest substring without repeating characters
-// Example: "abcabcbb", Answer: "abc" Length: 3
-
+// ============================================================================
+// 5. DYNAMIC SLIDING WINDOW (LeetCode 3: Longest Substring Without Repeating)
+// ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Longest / Shortest substring satisfying condition" (no duplicates, at most K)
+ *    - Metaphor: The Elastic Accordion 🪗 (Expand right pointer to explore;
+ *      when invalid duplicate appears, shrink left pointer until valid again).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: `seen = new Set<string>()`, `left = 0, maxLength = 0`.
+ *    - Step 2: Loop `right` from 0 to N-1:
+ *              * While `seen.has(s[right])`: remove `s[left]` and advance `left++`.
+ *              * Add `s[right]` to `seen`.
+ *              * Update `maxLength = Math.max(maxLength, right - left + 1)`.
+ *    - Step 3: Return `maxLength`.
+ *
+ * 3. THE APPROACH:
+ *    - Variable-size sliding window with Set tracking current window state.
+ *
+ * 4. TRADE-OFFS:
+ *    - Brute Force substrings: O(N^3) or O(N^2).
+ *    - Dynamic Sliding Window: O(2N) = O(N) time! Each character visited by left and right at most once.
+ *    - Map of char -> lastIndex can jump `left = map.get(char) + 1` directly (slight optimization).
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Forgetting the `while` loop when shrinking `left` (might need to shrink multiple chars).
+ *    - Window length formula: `right - left + 1` (add 1 because indices are inclusive).
+ *
+ * Complexity: Time O(N) | Space O(min(N, alphabet))
+ */
 function lengthOfLongestSubstring(s: string): number {
     const seen = new Set<string>();
 
