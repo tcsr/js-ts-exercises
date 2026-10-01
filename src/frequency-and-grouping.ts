@@ -1,28 +1,46 @@
 /**
  * ============================================================================
- * STRING & HASH MAP INTERVIEW PATTERNS
+ * STRING & HASH MAP INTERVIEW MASTER PATTERNS
  * 
- * Each problem follows the 6-Step Framework:
- * Clarify → Approach → Code → Test → Complexity → Optimization
+ * Master Study Blueprint for Every Problem:
+ * 1. HOW TO REMEMBER (Mental Trigger & Metaphor)
+ * 2. STEPS TO FOLLOW (Algorithm Recipe)
+ * 3. THE APPROACH (Core Data Structure & Strategy)
+ * 4. TRADE-OFFS (Why this over that?)
+ * 5. PITFALLS & EDGE CASES (What breaks in interviews)
  * ============================================================================
  */
 
 // ============================================================================
 // 1. COUNT WORD FREQUENCIES
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Raw text string (may contain punctuation, multiple spaces, mixed casing).
-//   - Output: Map of word -> count.
-//   - Edge cases: Empty string, all punctuation, numbers, multiple spaces.
-// Approach:
-//   - Normalize casing (to lower), split by non-word delimiters `[^\w]+`, ignore empty tokens.
-//   - Insert into Map<string, number>, increment count.
-// Complexity:
-//   - Time: O(N) where N is length of string.
-//   - Space: O(U) where U is number of unique words.
-// Optimization:
-//   - For streaming or huge inputs, scan characters with two pointers to avoid regex allocations.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "How many times did word X appear?" / "Histogram of words"
+ *    - Metaphor: The Tally Stick 🪣 (Make a notch in the bucket every time you see an item).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Sanitize text (lowercase, strip edge punctuation).
+ *    - Step 2: Tokenize using delimiter regex `[^\w]+`.
+ *    - Step 3: Tally in Map using default fallback: `freq.set(w, (freq.get(w) ?? 0) + 1)`.
+ *
+ * 3. THE APPROACH:
+ *    - Hash Map (`Map<string, number>`) provides O(1) average lookup and insertion.
+ *
+ * 4. TRADE-OFFS:
+ *    - Map vs Plain Object `{}`:
+ *      * Map prevents prototype key collision (e.g. word "constructor" or "toString").
+ *      * Map preserves insertion order; plain object does not guarantee it.
+ *    - Regex Split vs Character Scanner:
+ *      * Regex split allocates intermediate arrays of all words (clean, readable).
+ *      * Character pointer scanner uses zero array allocations (best for large streams).
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Empty string or all-whitespace returning map with `[""]` key -> must filter empty tokens!
+ *    - Punctuation glued to words (`"world!"` vs `"world"`).
+ *
+ * Complexity: Time O(N) | Space O(U) where U = unique words
+ */
 export function countWordFrequencies(text: string): Map<string, number> {
     const freq = new Map<string, number>();
     if (!text || text.trim().length === 0) return freq;
@@ -41,19 +59,32 @@ export function countWordFrequencies(text: string): Map<string, number> {
 
 // ============================================================================
 // 2. FIND FIRST / MOST FREQUENT WORD
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Array of words (or sentence).
-//   - Output: Most frequent word (or null if empty).
-//   - Tie-breaker: "first" (earliest seen max) or "lexicographical" (alphabetical).
-// Approach:
-//   - Build frequency map while simultaneously tracking max count and candidate word.
-// Complexity:
-//   - Time: O(N) single pass.
-//   - Space: O(U) unique words.
-// Optimization:
-//   - Single pass: update best candidate in the same loop that builds frequency.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Find the top / mode / most common word" + "Tie-breaker rule"
+ *    - Metaphor: The Champion's Belt 🏆 (Hold current leader; replace only if strictly beaten).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Build frequency map and record the highest frequency `maxCount`.
+ *    - Step 2: Iterate unique keys in Map (which preserves original first-seen order!).
+ *    - Step 3: Pick the first key that equals `maxCount` (or apply alphabetical tie-breaker).
+ *
+ * 3. THE APPROACH:
+ *    - Two-pass frequency check. Pass 1 tallies counts. Pass 2 inspects candidates.
+ *
+ * 4. TRADE-OFFS:
+ *    - Single-Pass tracking vs Two-Pass resolution:
+ *      * Single-pass can track `maxCount` during insertion, but if the tie-breaker is
+ *        "earliest seen in array", a later word might temporarily claim the lead.
+ *      * Iterating `freq.entries()` in Pass 2 is still O(U) <= O(N) and 100% bug-free for ties.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Empty input array -> must return `null`.
+ *    - Forgetting the tie-breaker rule! Always clarify: "If tie, first seen or alphabetical?"
+ *
+ * Complexity: Time O(N) | Space O(U)
+ */
 export function findMostFrequentWord(
     words: string[],
     tieBreaker: "first" | "lexicographical" = "first"
@@ -89,20 +120,31 @@ export function findMostFrequentWord(
 
 // ============================================================================
 // 3. FIND LONGEST WORD
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Sentence string or word array.
-//   - Output: Longest word (null if empty).
-//   - Tie-breaker: First longest word encountered.
-// Approach:
-//   - Tokenize alphanumeric words.
-//   - Scan words, compare `word.length > longest.length`.
-// Complexity:
-//   - Time: O(N) where N is text length.
-//   - Space: O(W) where W is length of longest word (O(1) extra if index pointers).
-// Optimization:
-//   - One-pass index scanner avoids allocating an array of all words.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Find word with max length"
+ *    - Metaphor: High-Water Mark 🌊 (Only record new record holder when length exceeds old).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Tokenize or scan text for word characters `[A-Za-z0-9_]`.
+ *    - Step 2: Compare each candidate length with current champion `longestLen`.
+ *    - Step 3: Return champion substring or `null` if empty.
+ *
+ * 3. THE APPROACH:
+ *    - Baseline: Extract array of words with regex `\b\w+\b`, linear scan.
+ *    - Optimized: Two-pointer index scanning without allocating any array.
+ *
+ * 4. TRADE-OFFS:
+ *    - `text.match(/\b\w+\b/g)`: 3 lines of code, but allocates array of all words (O(N) memory).
+ *    - Zero-Allocation Index Scanner: 20 lines of code, but strict O(1) extra memory.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Text with no valid words (e.g. `"!!@#$%^"`).
+ *    - Ties: `word.length > longest.length` preserves FIRST longest; `>=` keeps LAST.
+ *
+ * Complexity: Time O(N) | Space O(1) aux (optimized) or O(N) (regex)
+ */
 export function findLongestWord(text: string): string | null {
     if (!text || text.trim().length === 0) return null;
 
@@ -119,10 +161,6 @@ export function findLongestWord(text: string): string | null {
     return longest;
 }
 
-/**
- * Ultra-Optimized: O(N) Time, O(1) Auxiliary Space.
- * Scans word boundaries using pointers; avoids allocating intermediate arrays.
- */
 export function findLongestWordZeroAlloc(text: string): string | null {
     if (!text) return null;
 
@@ -160,20 +198,30 @@ export function findLongestWordZeroAlloc(text: string): string | null {
 
 // ============================================================================
 // 4. REMOVE DUPLICATE WORDS
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Array of words.
-//   - Output: Array with duplicate words removed, preserving original insertion order.
-//   - Case sensitivity: configurable (default: case-sensitive).
-// Approach:
-//   - Use a Set<string> to track seen words.
-//   - Filter array: keep word if not in Set, then add to Set.
-// Complexity:
-//   - Time: O(N) where N is words count.
-//   - Space: O(U) where U is unique words.
-// Optimization:
-//   - If input array is already sorted, use two pointers in-place for O(1) space.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Filter duplicates" / "Keep unique elements in order"
+ *    - Metaphor: The Bouncer at the Cave Door 🚪 (If name on guest list, reject!).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Create a `seen = new Set<string>()`.
+ *    - Step 2: Loop array; if `!seen.has(key)`, push to result and `seen.add(key)`.
+ *    - Step 3: Return result array (preserves first occurrence order).
+ *
+ * 3. THE APPROACH:
+ *    - Hash Set lookup has O(1) average time complexity.
+ *
+ * 4. TRADE-OFFS:
+ *    - Hash Set: O(N) time, O(U) space. Works on any unsorted data, preserves order.
+ *    - In-place Sorting + Two Pointers: O(N log N) time, O(1) space. Destroys original order!
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Using `Array.from(new Set(arr))` works for case-sensitive, but fails if case-insensitive
+ *      deduplication is requested while preserving the original casing of the first word!
+ *
+ * Complexity: Time O(N) | Space O(U)
+ */
 export function removeDuplicateWords(
     words: string[],
     caseInsensitive = false
@@ -194,16 +242,34 @@ export function removeDuplicateWords(
 
 // ============================================================================
 // 5. GROUP ANAGRAMS (LeetCode 49)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: string[] of words.
-//   - Output: string[][] grouped by anagram signature.
-// Approach:
-//   - Sort word characters or use 26-char frequency tuple as map key.
-// Complexity:
-//   - Time: O(N * K) with count key or O(N * K log K) with sorted key.
-//   - Space: O(N * K).
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Words with same letters in different order" / "Group permutations"
+ *    - Metaphor: The DNA Fingerprint 🧬 (Transform scrambled words into one canonical ID).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Define canonical key generator:
+ *              Option A: sort letters (`"eat" -> "aet"`).
+ *              Option B: 26-char frequency tuple (`"eat" -> "1#0#...#1#0"`).
+ *    - Step 2: Group words in `Map<CanonicalKey, string[]>`.
+ *    - Step 3: Return `Array.from(map.values())`.
+ *
+ * 3. THE APPROACH:
+ *    - Hash Map where key is invariant across all anagrams of a word.
+ *
+ * 4. TRADE-OFFS:
+ *    - Sorted Key (`word.split('').sort().join('')`):
+ *      * Time: O(N * K log K). Simple, readable, 2 lines of code.
+ *    - Count Key (`Array(26).fill(0)` + delimiter):
+ *      * Time: O(N * K). Avoids O(K log K) sorting for very long strings (K > 100).
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Delimiter missing in count array: `[1, 11]` vs `[11, 1]` without `#` separator = collision!
+ *    - Empty strings `[""]` -> must group into `[[""]]`.
+ *
+ * Complexity: Time O(N * K) or O(N * K log K) | Space O(N * K)
+ */
 export function groupAnagrams(strs: string[]): string[][] {
     const map = new Map<string, string[]>();
 
@@ -226,19 +292,32 @@ export function groupAnagrams(strs: string[]): string[][] {
 
 // ============================================================================
 // 6. SORT BY FREQUENCY (LeetCode 451 / 692)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Array of items (words or characters).
-//   - Output: Items sorted by descending frequency; ties sorted alphabetically.
-// Approach:
-//   - Step 1: Count frequency using Map.
-//   - Step 2: Bucket Sort or Comparator Sort: `freqB - freqA || a.localeCompare(b)`.
-// Complexity:
-//   - Time: O(N log N) with comparator, or O(N) with Bucket Sort.
-//   - Space: O(N).
-// Optimization:
-//   - Bucket Sort (array of buckets indexed by frequency) achieves linear O(N) time.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Order by most frequent first" / "Top K frequent"
+ *    - Metaphor: The Frequency Shelves 🪜 (Shelf number = count. Empty shelves from top down).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Count occurrences of each item in a `Map`.
+ *    - Step 2: Place items into `buckets` array where index = frequency.
+ *    - Step 3: Iterate `buckets` from length down to 1; expand items by frequency.
+ *
+ * 3. THE APPROACH:
+ *    - Bucket Sort avoids comparison sorting, achieving linear O(N) performance.
+ *
+ * 4. TRADE-OFFS:
+ *    - Comparator Sort (`Array.sort()`):
+ *      * Time: O(U log U). Simpler code, but scales slower as unique elements grow.
+ *    - Bucket Sort:
+ *      * Time: True O(N) linear time! Optimal when N is large. Extra O(N) bucket space.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Bucket array size must be `items.length + 1` (an item could appear N times).
+ *    - Deterministic tie-breaking (e.g. alphabetical) requires sorting items within same bucket.
+ *
+ * Complexity: Time O(N) (Bucket Sort) or O(U log U) (Comparator) | Space O(N)
+ */
 export function sortByFrequency(items: string[]): string[] {
     const freq = new Map<string, number>();
     for (const item of items) {
@@ -264,10 +343,6 @@ export function sortByFrequency(items: string[]): string[] {
     return result;
 }
 
-/**
- * Ultra-Optimized: O(N) Linear Time Bucket Sort (LeetCode 451).
- * Avoids O(U log U) comparison sorting by using frequency as array index.
- */
 export function sortByFrequencyBucket(items: string[]): string[] {
     if (items.length === 0) return [];
 
@@ -303,20 +378,32 @@ export function sortByFrequencyBucket(items: string[]): string[] {
 
 // ============================================================================
 // 7. SORT ALPHABETICALLY (With Natural & Custom Options)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Array of strings.
-//   - Options: Natural numeric sorting ("item2" before "item10"), case-insensitivity.
-//   - Output: Sorted array (non-mutating).
-// Approach:
-//   - Clone array with slice() or spread [...words].
-//   - Use Intl.Collator or String.prototype.localeCompare with numeric: true.
-// Complexity:
-//   - Time: O(N log N * L) where L is string length.
-//   - Space: O(N) for returned copy.
-// Optimization:
-//   - Pre-instantiate Intl.Collator instance for reuse instead of creating one per comparison.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Sort names / filenames" / "Natural human sort"
+ *    - Metaphor: The Human Dictionary 📖 ("file2" comes BEFORE "file10", not after!).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Copy array (never mutate caller's original array unless asked!).
+ *    - Step 2: Use `Intl.Collator` configured with `{ numeric: true, sensitivity: 'base' }`.
+ *    - Step 3: Sort using `collator.compare(a, b)`.
+ *
+ * 3. THE APPROACH:
+ *    - Unicode Collation Algorithm via standard ECMAScript `Intl.Collator`.
+ *
+ * 4. TRADE-OFFS:
+ *    - Calling `a.localeCompare(b)` inside `.sort()`:
+ *      * Creates and re-evaluates locale options on every single pairwise comparison (slow).
+ *    - Creating one `new Intl.Collator()` instance:
+ *      * Reuses compiled comparison rules, running up to 10x faster in V8.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - JavaScript default `.sort()` does UTF-16 code-unit sorting (`"10"` sorts before `"2"`).
+ *    - Capital letters sorting before lowercase (`"Apple"` before `"banana"`) unless base sensitivity set.
+ *
+ * Complexity: Time O(N log N * L) | Space O(N) copy
+ */
 export function sortAlphabetical(
     words: string[],
     options: { natural?: boolean; caseSensitive?: boolean } = {}
@@ -333,21 +420,33 @@ export function sortAlphabetical(
 
 // ============================================================================
 // 8. CHARACTER FREQUENCY & FIRST UNIQUE CHAR (LeetCode 387)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: String.
-//   - Outputs:
-//       1) getCharFrequency(str): Map<char, count>
-//       2) firstUniqueChar(str): index of first non-repeating character (-1 if none)
-// Approach:
-//   - Pass 1: Build frequency map.
-//   - Pass 2: Iterate characters; return index of first char with frequency === 1.
-// Complexity:
-//   - Time: O(N) two passes.
-//   - Space: O(1) bounded by alphabet (max 26 lowercase or 128 ASCII).
-// Optimization:
-//   - Use fixed-size Int32Array(26) for ASCII lowercase for fastest cache performance.
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "First non-repeating character" / "Single unique character in stream"
+ *    - Metaphor: Two-Pass Radar 📡 (Pass 1 counts sightings; Pass 2 scans from left for count === 1).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: First pass over string to count frequencies of each character.
+ *    - Step 2: Second pass over string from index 0 to N-1.
+ *    - Step 3: Return first index `i` where `count === 1`. Return `-1` if none found.
+ *
+ * 3. THE APPROACH:
+ *    - Two linear passes.
+ *
+ * 4. TRADE-OFFS:
+ *    - `Map<string, number>`:
+ *      * Generic, supports emojis and unicode. Incurs Map hash and GC overhead.
+ *    - `new Int32Array(26)`:
+ *      * Fixed stack buffer. 0 heap object allocations. Direct L1 CPU cache indexing.
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Trying to solve in a single pass without second pass (you cannot know if a char will
+ *      repeat later until you finish reading the string!).
+ *    - Case where every character repeats (`"aabb"`) -> must return `-1`.
+ *
+ * Complexity: Time O(N) | Space O(1) bounded by alphabet (26 letters)
+ */
 export function getCharFrequency(str: string): Map<string, number> {
     const freq = new Map<string, number>();
     for (const char of str) {
@@ -375,11 +474,6 @@ export function firstUniqueChar(str: string): number {
     return -1;
 }
 
-/**
- * Ultra-Optimized: O(N) Time, O(1) Auxiliary Space (LeetCode 387).
- * Uses fixed-size typed array Int32Array(26) for zero heap allocation and direct memory indexing.
- * Assumes lowercase English characters ('a'-'z').
- */
 export function firstUniqueCharOptimized(str: string): number {
     const counts = new Int32Array(26);
 
@@ -398,20 +492,36 @@ export function firstUniqueCharOptimized(str: string): number {
 
 // ============================================================================
 // 9. FIND DUPLICATE ELEMENTS (LeetCode 217 & 442)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - hasDuplicates(arr): boolean (does ANY element repeat?)
-//   - findAllDuplicates(arr): elements that appear >= 2 times.
-// Approach:
-//   - hasDuplicates: Set early-exit on first seen collision.
-//   - findAllDuplicates: Track seen and addedToDuplicates sets (or frequency map).
-// Complexity:
-//   - Time: O(N)
-//   - Space: O(N)
-// Optimization:
-//   - hasDuplicates stops immediately at first duplicate -> O(1) best case.
-//   - findDuplicatesInPlace achieves O(1) extra space using index sign-negation!
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Contains duplicate" (LC 217) or "Find all duplicates in array" (LC 442)
+ *    - Metaphor: The Negative Flag 🚩 (Flip sign of `nums[val - 1]` to mark: "I was here!").
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - For `hasDuplicates`: Check `seen.has(x)`. Return `true` immediately on first collision.
+ *    - For `findDuplicatesInPlace` (numbers in range [1, n]):
+ *      * Step 1: Look at index `Math.abs(nums[i]) - 1`.
+ *      * Step 2: If value at that index is already negative -> duplicate spotted!
+ *      * Step 3: Else negate that value: `nums[target] = -nums[target]`.
+ *      * Step 4: Restore original signs before returning.
+ *
+ * 3. THE APPROACH:
+ *    - In-place index negation uses array itself as a hash table.
+ *
+ * 4. TRADE-OFFS:
+ *    - `Set` / Frequency Map:
+ *      * Works for any data type (strings, negative numbers, floats). Uses O(N) extra space.
+ *    - In-Place Sign Negation (LC 442):
+ *      * Strict O(1) auxiliary memory! Only applies when input numbers are in range [1, n].
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Forgetting `Math.abs(nums[i])`: because elements get negated, looking up without `Math.abs()`
+ *      will produce a negative index and crash!
+ *    - Failing to restore array signs leaves caller's data mutated.
+ *
+ * Complexity: Time O(N) | Space O(1) auxiliary (in-place) or O(N) (Set)
+ */
 export function hasDuplicates<T>(items: T[]): boolean {
     const seen = new Set<T>();
     for (const item of items) {
@@ -436,12 +546,6 @@ export function findAllDuplicates<T>(items: T[]): T[] {
     return Array.from(duplicates);
 }
 
-/**
- * Ultra-Optimized: O(N) Time, O(1) Auxiliary Space (LeetCode 442).
- * Works when integers are in range [1, n].
- * Uses numbers as target indices (val - 1) and negates the value at that index to mark visited.
- * Restores original array before returning.
- */
 export function findDuplicatesInPlace(nums: number[]): number[] {
     const duplicates: number[] = [];
 
@@ -465,19 +569,34 @@ export function findDuplicatesInPlace(nums: number[]): number[] {
 }
 
 // ============================================================================
-// 10. TRANSFORM / GROUP COLLECTION DATA (Object.groupBy polyfill & Aggregate)
-// ----------------------------------------------------------------------------
-// Clarify:
-//   - Input: Array of entities/objects, keySelector function.
-//   - Output: Object grouping items into arrays by key.
-// Approach:
-//   - Array.prototype.reduce or simple for..of loop with Record<K, T[]>.
-// Complexity:
-//   - Time: O(N)
-//   - Space: O(N)
-// Optimization:
-//   - Generic typed groupBy works on any property key (string | number | symbol).
+// 10. TRANSFORM / GROUP COLLECTION DATA (Object.groupBy Polyfill & Aggregator)
 // ============================================================================
+/**
+ * 1. HOW TO REMEMBER:
+ *    - Trigger: "Group list of objects by category / status / date" / "SQL GROUP BY"
+ *    - Metaphor: Sorting mail into pigeonholes 🗄️ (Compute drawer key; insert into drawer).
+ *
+ * 2. STEPS TO FOLLOW:
+ *    - Step 1: Initialize empty result record `{}`.
+ *    - Step 2: Loop items; compute key using selector function `keySelector(item)`.
+ *    - Step 3: If bucket doesn't exist, create empty array: `result[key] ??= []`.
+ *    - Step 4: Push item into bucket.
+ *
+ * 3. THE APPROACH:
+ *    - Hash partition with TypeScript generics for compile-time safety.
+ *
+ * 4. TRADE-OFFS:
+ *    - Custom `groupBy`:
+ *      * Works in all JavaScript environments, easily chained with custom reducers.
+ *    - Native `Object.groupBy` / `Map.groupBy` (ES2024 / Node 21+):
+ *      * Engine-level C++ speed. `Map.groupBy` allows complex objects as grouping keys!
+ *
+ * 5. PITFALLS & EDGE CASES:
+ *    - Keys that are `null` or `undefined` -> `Object.groupBy` stringifies them to `"null"`.
+ *    - Memory accumulation: grouping 1,000,000 items creates large nested arrays.
+ *
+ * Complexity: Time O(N) | Space O(N)
+ */
 export function groupBy<T, K extends PropertyKey>(
     items: T[],
     keySelector: (item: T) => K
